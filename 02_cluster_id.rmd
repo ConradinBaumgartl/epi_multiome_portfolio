@@ -1,0 +1,208 @@
+# Init
+
+```{r}
+suppressPackageStartupMessages({
+  library(Seurat)
+  library(Signac)
+  library(tidyverse)
+  library(HGNChelper)
+})
+
+mbrain <- readRDS("data/mbrain_seurat.rds")
+```
+
+
+# Differential Expression (DE) analysis
+
+The cell type classification will be performed on the RNA expression only, since most information is available for marker genes. To find genes that might be most useful for assigning clusters a Differential Expression analysis is performed.
+
+```{r}
+DefaultAssay(mbrain) = "SCT" # run marker finding on normalized RNA data
+mbrain.markers <- FindAllMarkers(mbrain, only.pos = T) # DE
+```
+
+## Plot top 5 DE genes in every cluster
+
+```{r}
+mbrain.markers %>% 
+  group_by(cluster) %>% 
+  dplyr::filter(avg_log2FC > 2) %>% 
+  arrange(cluster, p_val_adj) %>% 
+  slice_head(n = 5) %>% 
+  ungroup() -> top
+
+# top %>% count(cluster)
+
+DoHeatmap(mbrain, features = top$gene)
+ggsave("figures/clusters.topgenes.png", dpi=300, width=7, height=7)
+```
+
+
+## cell type annotation using sc-type
+
+I utilize the marker gene collection from sc-type (https://github.com/IanevskiAleksandr/sc-type/). Some caveats: this is a collection of human marker genes, but most gene names are interchangeable between mice and humans when taking into account the writing conventions (capital first letter in mice).
+
+```{r}
+sctype.markers <- read_csv("sc-type_brain.csv") %>% 
+  mutate(gene = str_split(gene, ";")) %>% 
+  unnest(gene) %>% 
+  mutate(gene = str_to_sentence(gene))
+```
+
+I join the marker genes with the markers that were discovered in the DE analysis.
+
+```{r}
+# only retain the top 10 that have at least 3 occurences
+top.annot <- left_join(mbrain.markers, sctype.markers, by="gene") %>% 
+  drop_na() %>% 
+  group_by(cluster) %>% 
+  dplyr::count(celltype) %>% 
+  arrange(cluster, desc(n)) %>% 
+  slice_head(n=10) %>% ungroup() %>% 
+  dplyr::filter(n>=3)
+```
+
+# Cluster per Cluster annotation
+
+This dataset contains brain cells from a late developmental stage of a mouse embryo. Therefore, we expect cells during differentiation and unclear cell identity.
+
+## Neurons
+
+```{r}
+top.annot %>% 
+  dplyr::filter(str_detect(celltype, "[Nn]euron")) %>% 
+  group_by(cluster) %>% summarise(sum = sum(n))
+```
+Only clusters 4, 12, and 15 do not have any Neuron-related marker genes
+
+### GABAergic neurons
+
+```{r}
+top.annot %>% 
+  dplyr::filter(str_detect(celltype, "GABA"))
+
+top.annot %>% 
+  dplyr::filter(cluster %in% c(5, 9, 12, 13))
+```
+
+according to the UMAP c5 is likely the precursor and c9 + c13 are likely differentiated.
+
+### Glutamatergic neurons
+
+```{r}
+top.annot %>% 
+  dplyr::filter(str_detect(celltype, "Gluta"))
+```
+
+## Glial cells
+
+### astrocytes
+
+```{r}
+top.annot %>% 
+  dplyr::filter(str_detect(celltype, "Astro"))
+
+top.annot %>% 
+  dplyr::filter(cluster %in% c(4, 8, 12)) %>% 
+  arrange(desc(n))
+```
+
+```{r}
+sctype.markers %>% distinct(celltype) %>% dplyr::filter(str_detect(celltype, "neuron"))
+```
+### Oligodendrocytes
+
+```{r}
+top.annot %>% 
+  dplyr::filter(str_detect(celltype, "Oligo"))
+```
+
+## Progenitor cells
+
+### Radial glial cells
+
+```{r}
+top.annot %>% 
+  dplyr::filter(str_detect(celltype, "Radial"))
+```
+## Neural progenitors
+
+```{r}
+top.annot %>% 
+  dplyr::filter(str_detect(celltype, "Progen"))
+```
+c1 and c2 are likely quite basal neuroanl progenitor cells (develop into neurons and glial cells).
+
+## other cells
+
+### Microglia
+
+```{r}
+top.annot %>% 
+  dplyr::filter(str_detect(celltype, "[Mm]icro"))
+```
+
+### c8 and c14
+
+```{r}
+top.annot %>% 
+  dplyr::filter(cluster == 8)
+
+top.annot %>% 
+  dplyr::filter(cluster == 11)
+
+top.annot %>% 
+  dplyr::filter(cluster == 14)
+```
+
+c8 is not an easy decision. It has marker genes for Astrocytes and unrelated cell types, and also seems to be quite dissimilar from the other Astrocyte cluster. Based on the location of the RNA/WNN UMAPs and this cluster not fitting into any other cell type, I will classify it as Neural Progenitors.
+
+c14 are most likely embryonic cajal cells
+
+# Cluster identification
+
+1 -> Neural Progenitor
+2 -> Neural Progenitor
+3 -> Glutamatergic Neuron
+4 -> Astrocytes
+5 -> GABAergic Progenitor
+6 -> Glutamatergic Progenitor
+7 -> Glutamatergic Progenitor
+8 -> Neural Progenitor (based on location in UMAP and not fitting in another category)
+9 -> GABAergic neurons
+10 -> Glutamatergic Progenitors
+11 -> Glutamatergic Neurons
+12 -> Oligodendrocytes
+13 -> GABAergic neurons
+14 -> Cajal cells
+15 -> Microglial cells
+
+```{r}
+mbrain <- mbrain %>% 
+  RenameIdents(
+    '1' = 'Neural Progenitor','2' = 'Neural Progenitor', '8' = 'Neural Progenitor',
+    '3' = 'Glutamatergic Neuron', '11' ='Glutamatergic Neuron',
+    '6' = 'Glutamatergic Progenitor', '7' ='Glutamatergic Progenitor', '10' = 'Glutamatergic Progenitor',
+    '9' = 'GABAergic Neuron', '13' ='GABAergic Neuron',
+    '5' = 'GABAergic Progenitor',
+    '4' = 'Astrocytes',
+    '12' = 'Oligodendrocytes',
+    '14' = 'Cajal cells',
+    '15' = 'Microglial cells')
+
+mbrain$celltype <- Idents(mbrain)
+```
+
+
+```{r}
+p1 <- DimPlot(mbrain, reduction = "umap.rna", label = TRUE, label.size = 2.5, repel = TRUE) + ggtitle("RNA")
+p2 <- DimPlot(mbrain, reduction = "wnn.umap", label = TRUE, label.size = 2.5, repel = TRUE) + ggtitle("WNN")
+p1 + p2 & NoLegend()
+ggsave("figures/umap.RNA.WNN.celltypes.png", dpi=300, width = 8, height = 4)
+```
+
+
+```{r}
+saveRDS(mbrain, file = "data/mbrain_seurat_celltypes.rds")
+```
+
