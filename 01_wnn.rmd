@@ -56,7 +56,7 @@ mbrain[["ATAC"]] <- chrom.Assay
 ## QC plot
 
 ```{r}
-VlnPlot(mbrain, features = c("nCount_ATAC", "nCount_RNA"), pt.size = 0, log=T)
+VlnPlot(mbrain, features = c("nCount_ATAC", "nCount_RNA"), layer = "counts",  pt.size = 0, log=T)
 ```
 
 ## Subsetting based on QC

@@ -14,11 +14,13 @@ mbrain <- readRDS("data/mbrain_seurat.rds")
 
 # Differential Expression (DE) analysis
 
-The cell type classification will be performed on the RNA expression only, since most information is available for marker genes. To find genes that might be most useful for assigning clusters a Differential Expression analysis is performed.
+The cell type classification will be performed on the RNA expression only, since most information is available for marker genes less for motifs. To find genes most useful for assigning clusters a Differential Expression analysis is performed.
+
+Alternatively, ChooseR could be used for a more restrictive set of marker genes for each cluster (10.1186/s12859-021-03957-4), but I decided that the default Seurat method performs good enough for this analysis.
 
 ```{r}
 DefaultAssay(mbrain) = "SCT" # run marker finding on normalized RNA data
-mbrain.markers <- FindAllMarkers(mbrain, only.pos = T) # DE
+mbrain.markers <- FindAllMarkers(mbrain, only.pos = T) # DE; relies on presto for fast wilcox test
 ```
 
 ## Plot top 5 DE genes in every cluster
@@ -43,7 +45,7 @@ ggsave("figures/clusters.topgenes.png", dpi=300, width=7, height=7)
 I utilize the marker gene collection from sc-type (https://github.com/IanevskiAleksandr/sc-type/). Some caveats: this is a collection of human marker genes, but most gene names are interchangeable between mice and humans when taking into account the writing conventions (capital first letter in mice).
 
 ```{r}
-sctype.markers <- read_csv("sc-type_brain.csv") %>% 
+sctype.markers <- read_csv("data/sc-type_brain.csv") %>% 
   mutate(gene = str_split(gene, ";")) %>% 
   unnest(gene) %>% 
   mutate(gene = str_to_sentence(gene))
@@ -73,7 +75,7 @@ top.annot %>%
   dplyr::filter(str_detect(celltype, "[Nn]euron")) %>% 
   group_by(cluster) %>% summarise(sum = sum(n))
 ```
-Only clusters 4, 12, and 15 do not have any Neuron-related marker genes
+Only clusters 4, 12, and 15 **do not** have any Neuron-related marker genes.
 
 ### GABAergic neurons
 
@@ -81,17 +83,25 @@ Only clusters 4, 12, and 15 do not have any Neuron-related marker genes
 top.annot %>% 
   dplyr::filter(str_detect(celltype, "GABA"))
 
+FeaturePlot(mbrain, features = c("Slc6a1", "Gad2", "Dlx5"),
+                  reduction = 'wnn.umap', max.cutoff = 2, 
+                  cols = c("lightgrey","darkgreen"), ncol = 3)
+
 top.annot %>% 
   dplyr::filter(cluster %in% c(5, 9, 12, 13))
 ```
 
-according to the UMAP c5 is likely the precursor and c9 + c13 are likely differentiated.
+c5 is likely the precursor and c9 + c13 are likely differentiated.
 
 ### Glutamatergic neurons
 
 ```{r}
 top.annot %>% 
   dplyr::filter(str_detect(celltype, "Gluta"))
+
+FeaturePlot(mbrain, features = c("Grin1", "Slc17a6"),
+                  reduction = 'wnn.umap', max.cutoff = 2, 
+                  cols = c("lightgrey","darkgreen"), ncol = 3)
 ```
 
 ## Glial cells
@@ -102,22 +112,39 @@ top.annot %>%
 top.annot %>% 
   dplyr::filter(str_detect(celltype, "Astro"))
 
+# plot together with some common Astrocyte marker genes
+FeaturePlot(mbrain, features = c("Sox9", "Aldh1l1"),
+                  reduction = 'wnn.umap', max.cutoff = 2, 
+                  cols = c("lightgrey","darkgreen"), ncol = 2)
+
 top.annot %>% 
   dplyr::filter(cluster %in% c(4, 8, 12)) %>% 
   arrange(desc(n))
 ```
+c4 seems like a good fit for Astrocytes
 
-```{r}
-sctype.markers %>% distinct(celltype) %>% dplyr::filter(str_detect(celltype, "neuron"))
-```
 ### Oligodendrocytes
 
 ```{r}
 top.annot %>% 
   dplyr::filter(str_detect(celltype, "Oligo"))
+
+# plot together with some common Oligodendrocyte marker genes
+FeaturePlot(mbrain, features = c("Olig1", "Olig2"),
+                  reduction = 'wnn.umap', max.cutoff = 2, 
+                  cols = c("lightgrey","darkgreen"), ncol = 2)
 ```
+c12 seems to be Oligdendrocytes
 
 ## Progenitor cells
+
+```{r}
+FeaturePlot(mbrain, features = c("Tbr1"),
+                  reduction = 'wnn.umap', max.cutoff = 2, 
+                  cols = c("lightgrey","darkgreen"), ncol = 2)
+```
+
+
 
 ### Radial glial cells
 
@@ -125,6 +152,8 @@ top.annot %>%
 top.annot %>% 
   dplyr::filter(str_detect(celltype, "Radial"))
 ```
+
+
 ## Neural progenitors
 
 ```{r}
