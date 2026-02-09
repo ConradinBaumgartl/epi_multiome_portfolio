@@ -39,7 +39,7 @@ mbrain <- RunChromVAR(
 )
 ```
 
-## get RNA and Motif markers for celltypes
+## get Transcription factor Expression and Motif markers for celltypes
 
 ```{r}
 # get differentially expressed genes per cell type
@@ -85,6 +85,8 @@ celltype.markers %>%
 
 # Interesting genes
 
+I pick out a couple of interesting TF genes based on their combined Gene Expression and motif accessibility to serve as markers for their assigned cell type.
+
 ## Helper functions
 
 ```{r}
@@ -106,7 +108,7 @@ plot.access <- function(gene_name, selection = "Astrocytes|Neuron|Oligode"){
 
 ## Dlx5
 
-Dlx5 is a member of DLX gene family that encompasses multiple homeobox transcription factors. Mutations are associated with the split hand and foot malformation syndrome. It is known to be expressed in the brain, however a function specific to GABAergic neurons is not known.
+Dlx5 is a member of DLX gene family that encompasses multiple homeobox transcription factors. Mutations of it are associated with the split hand and foot malformation syndrome. It is known to be expressed in the brain, however a function specific to GABAergic neurons is not known.
 
 ```{r}
 plot.GEX.ATAC("Dlx5")
@@ -116,7 +118,7 @@ plot.access("Dlx5")
 
 ## Plagl1
 
-Plagl1 is another transcription factor and it stands out with an average AUC of 0.85 for Astrocytes. It is associated with neural development in mice, but its association with astrocytes in particular seems new. Additionally, the ATAC profile shows its Transcrption Start Site (TSS) not being more accessible than other cell types, however it is distinguished by multiple peaks within exons. This might be a hint for this gene's expression being regulated on the RNA level by alternative splicing mechanisms.
+Plagl1 stands out with an average AUC of 0.85 for Astrocytes. It is associated with neural development in mice, but its association with astrocytes in particular seems new. Additionally, the ATAC profile shows its Transcrption Start Site (TSS) not being more accessible than other cell types, however it is distinguished by multiple peaks within exons. This might be a hint for this gene's expression being regulated on the RNA level by alternative splicing mechanisms.
 
 ```{r}
 plot.GEX.ATAC("Plagl1")
