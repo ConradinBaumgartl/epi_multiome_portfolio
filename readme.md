@@ -44,7 +44,9 @@ cellranger-arc count \
 
 ### Quality Control - cellranger output
 
-Unsurprisingly, the data deposited by 10x Genomics is of high quality. There is a clear association of scATAC-seq reads with Transcription Start Sites (TSS) of genes, and in most cell barcodes the fraction of reads mapping to peaks is over 0.5.
+Unsurprisingly, the data deposited by 10x Genomics is of high quality. Both subexperiments had a high number of confidently mapped reads to the mouse genome (>92%). There is a median count of 16,478 ATAC fragments and 3,134 genes per cell, respectively. De-duplication and cell/non-cell boundaries are calculated internally in the cellranger suite, the latter using the ordmag algorithm followed by clustering to account for the spread of ATAC+GeneExpression data.
+
+There is a clear association of scATAC-seq reads with Transcription Start Sites (TSS) of genes, and in most cell barcodes the fraction of reads mapping to peaks is over 0.5. Therefore, the ATAC experiment produces fragments that mostly accumulate in the form of peaks at accessible sites within the genome.
 
 
 |                                 |                                                             |
@@ -57,11 +59,9 @@ Similarly, the combined look at the RNA-seq and scATAC data shows most cells sim
 
 ## Dimensionality reduction and Clustering
 
-Here, I am using Weighted Nearest Neighbor (WNN) to divide the cells into clusters. In this approach I rely on the individual dimensional reduction of the RNA and ATAC data to inform the decision.
+Here, I use the Weighted Nearest Neighbor (WNN) method in Seurat to jointly embed gene expression and ATAC profiles for each cell and perform integrated clustering. WNN is a multimodal integration approach that jointly analyzes multiple modalities, such as gene expression and ATAC. Instead of concatenating features across modalities, WNN constructs separate neighbor graphs for each modality and learns cell-specific weights. For each cell, these weights quantify how well a given modality captures local neighborhood structure. The modality-specific graphs are then combined into a single weighted neighbor graph, which balances contributions from each modality on a per-cell basis. I then use the graph for Leiden clustering.
 
-How does this work?
-
-What can we see?
+Below is a UMAP visualization of RNA (PCA), ATAC (TF-IDF), and the integrated WNN graph, with cells colored by cluster (15 total). At first glance, the WNN embedding appears similar to the ATAC visualization, likely due to their shared orientation and the presence of elongated regions corresponding to clusters 12 and 5. However, the WNN representation integrates information from both RNA and ATAC modalities. For example, clusters 9 and 13 are nearly indistinguishable in the ATAC embedding but are clearly separable based on gene expression. In this case, the WNN graph assigns greater weight to the RNA modality when defining the local neighborhood structure of these clusters.
 
 ![UMAP1](figures/umap.compare.RNA.ATAC.WNN.png)
 
