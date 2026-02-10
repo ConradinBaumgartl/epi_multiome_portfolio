@@ -6,7 +6,7 @@ This repository demonstrates a workflow for the analysis of a multi-omics experi
 
 This is intended as an exploratory analysis that serves only as a starting point for further analysis depending on the scientific question of the study.
 
-This readme file contains the main points of the analysis. The analysis is divided into three R-markdown files that are annotated with details and contain the exact executed code and session info.
+This readme file contains the main points of the analysis. The analysis is divided into three R-markdown files that are annotated with details and contain the exact executed code and session info. I have omitted the raw data and large files from this repository to maintain a tolerable size.
 
 ## Data
 
@@ -64,7 +64,7 @@ Below is a UMAP visualization of RNA (PCA), ATAC (TF-IDF), and the integrated WN
 
 ## Cell type assignment
 
-For cell type assignment I performed a differential expression analysis to find differentially expressed genes for every cluster. I then utilized the marker gene list for the brain from sc-type (https://github.com/IanevskiAleksandr/sc-type/) to make informed decisions about cell identities. In short, I checked each cluster for expressed marker genes and checked their differentiation status by assessing their representation in the RNA and WNN UMAP. As an example, here is the expression of Slc6a1 (neurotransmitter transporter, GABA), Gad2 (glutamate decarboxylase), and Dlx5 (transcription factor). The first 2 genes are markers of GABAergic neurons, whereas Dlx5 is a transcription factor associated with developement.
+For cell type assignment I performed a differential expression analysis to find differentially expressed genes for every cluster. I then utilized the marker gene list for the brain from sc-type (https://github.com/IanevskiAleksandr/sc-type/) to make informed decisions about cell identities. In short, I checked each cluster for expressed marker genes and checked their differentiation status by assessing their representation in the RNA and WNN UMAP. As an example, here is the expression of Slc6a1 (neurotransmitter transporter, GABA), Gad2 (glutamate decarboxylase), and Dlx5 (transcription factor). The first 2 genes are markers of GABAergic neurons, whereas Dlx5 is a transcription factor associated with development.
 
 ![GABA expression](figures/cluster_ident/Slca1.Gad2.Dlx5.png)
 
