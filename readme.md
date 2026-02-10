@@ -6,7 +6,7 @@ This repository demonstrates a workflow for the analysis of a multi-omics experi
 
 This is intended as an exploratory analysis that serves only as a starting point for further analysis depending on the scientific question of the study.
 
-This readme file contains the main points of the analysis. The analysis is divided into three R-markdown files that are annotated with details and contain the exact executed code.
+This readme file contains the main points of the analysis. The analysis is divided into three R-markdown files that are annotated with details and contain the exact executed code and session info.
 
 ## Data
 
@@ -20,7 +20,7 @@ The data for this analysis is from 10x Genomics and can be found within their da
 
 3. Cluster - Cell type association
 
-4. Identify transcription factor Expression and Motif accessibility as cell tyoe markers
+4. Identify transcription factor Expression and Motif accessibility as cell type markers
 
 ### indexing of the mouse reference genome
 
@@ -77,7 +77,7 @@ The more differentiated neurons (GABAergic and Glutamatergic) both originate fro
 
 ## Transcription factor / Motif analysis
 
-Lastly, I leverage the modalities of ATAC peaks and Gene expression to identify enriched transcription factor (TF) motifs and the associated TF expression to identify intriguing genes for cell type development. The latest version (2024) of JASPAR is used to get a list of TF motifs and chromVAR is used to find differentially accessible motifs in the assigned cell types. The Area Under Curve (AUC) of every TF expression/motif accessiblity pair is used to rank the marker TFs. The associated table can be found under 'data/celltype.motif.markers.csv'.
+Lastly, I leverage the modalities of ATAC peaks and Gene expression to identify enriched transcription factor (TF) motifs and the associated TF expression to identify intriguing genes for cell type development. The latest version (2024) of JASPAR is used to get a list of TF motifs and chromVAR is used to find differentially accessible motifs in the assigned cell types. The Area Under Curve (AUC) of every TF expression/motif accessiblity pair is used to rank the marker TFs. The associated table can be found under 'data/celltype.motif.markers.csv'. Here, I show two examples. This framework can be readily extended to address a broad range of regulatory and developmental questions.
 
 ### Dlx5
 
