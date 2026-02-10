@@ -15,7 +15,7 @@ The data for this analysis is from 10x Genomics and can be found within their da
 ## Quality Control - raw data
 
 
-## Workflow
+## Workflow overview
 
 1. Align and create count/fragment table
 
@@ -46,5 +46,32 @@ cellranger-arc count \
 
 Unsurprisingly, the data deposited by 10x Genomics is of high quality. There is a clear association of scATAC-seq reads with Transcription Start Sites (TSS) of genes, and in most cell barcodes the fraction of reads mapping to peaks is over 0.5.
 
-![ATAC TSS](figures/QC/atac_TSS.png){: style="height:83px"}
-![ATAC fragment peaks](figures/QC/atac_peaks_fragments.png){: style="height:83px"}
+
+<img src="figures/QC/atac_TSS.png" alt="ATAC TSS" width="200"/>
+<img src="figures/QC/atac_peaks_fragments.png" alt="ATAC fragment peaks" width="200"/>
+
+Similarly, the combined look at the RNA-seq and scATAC data shows most cells simultaneously having a high number of transposition events (ATAC) and a high number of UMIs (RNA).
+
+![ATAC_GEX joint](figures/QC/joint.png)
+
+## Dimensionality reduction and Clustering
+
+Here, I am using Weighted Nearest Neighbor (WNN) to divide the cells into clusters. In this approach I rely on the individual dimensional reduction of the RNA and ATAC data to inform the decision.
+
+How does this work?
+
+What can we see?
+
+![UMAP1](figures/umap.compare.RNA.ATAC.WNN.png)
+
+## Cell type assignment
+
+What did I use?
+
+exemplary pictures of differentially expressed genes
+
+## Transcription factor / Motif analysis
+
+What did I do?
+
+Show some interesting genes.
