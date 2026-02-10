@@ -46,14 +46,10 @@ cellranger-arc count \
 
 Unsurprisingly, the data deposited by 10x Genomics is of high quality. There is a clear association of scATAC-seq reads with Transcription Start Sites (TSS) of genes, and in most cell barcodes the fraction of reads mapping to peaks is over 0.5.
 
-<div class="row">
-  <div class="column">
-    <img src="figures/QC/atac_TSS.png" alt="ATAC TSS" width="300"/>
-  </div>
-  <div class="column">
-    <img src="figures/QC/atac_peaks_fragments.png" alt="ATAC fragment peaks" width="300"/>
-  </div>
-</div>
+
+|                                 |                                                             |
+| ------------------------------- | ----------------------------------------------------------- |
+| ![TSS](figures/QC/atac_TSS.png) | ![ATAC fragment peaks](figures/QC/atac_peaks_fragments.png) |
 
 Similarly, the combined look at the RNA-seq and scATAC data shows most cells simultaneously having a high number of transposition events (ATAC) and a high number of UMIs (RNA).
 
