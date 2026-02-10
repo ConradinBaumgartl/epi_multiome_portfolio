@@ -107,12 +107,19 @@ mbrain <- mbrain %>%
   FindClusters(graph.name = "wsnn", algorithm = 4, verbose = FALSE, random.seed = 1994) # Leiden algorithm for clustering
 ```
 
+```{r}
+Idents(mbrain) %>% 
+  table()
+```
+
+
+
 ## Plotting
 
 ```{r}
-p1 <- DimPlot(mbrain, reduction = "umap.rna", label = TRUE, label.size = 2.5, repel = TRUE) + ggtitle("RNA")
-p2 <- DimPlot(mbrain, reduction = "umap.atac", label = TRUE, label.size = 2.5, repel = TRUE) + ggtitle("ATAC")
-p3 <- DimPlot(mbrain, reduction = "wnn.umap", label = TRUE, label.size = 2.5, repel = TRUE) + ggtitle("WNN")
+p1 <- DimPlot(mbrain, reduction = "umap.rna", label = TRUE, label.size = 2.5, repel = TRUE, pt.size = 1e-2) + ggtitle("RNA")
+p2 <- DimPlot(mbrain, reduction = "umap.atac", label = TRUE, label.size = 2.5, repel = TRUE, pt.size = 1e-2) + ggtitle("ATAC")
+p3 <- DimPlot(mbrain, reduction = "wnn.umap", label = TRUE, label.size = 2.5, repel = TRUE, pt.size = 1e-2) + ggtitle("WNN")
 p1 + p2 + p3 & NoLegend() & theme(plot.title = element_text(hjust = 0.5))
 ggsave("figures/umap.compare.RNA.ATAC.WNN.png", dpi=300, width = 8, height = 4)
 ```

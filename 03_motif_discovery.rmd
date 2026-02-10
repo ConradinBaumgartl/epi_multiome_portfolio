@@ -77,11 +77,16 @@ celltype.markers <- lapply(celltypes, function(celltype){
   mutate(celltype = RNA.group) %>% 
   select(-c(RNA.group, motif.group))
 
+celltype.markers %>% 
+  write_csv("data/celltype.motif.markers.csv")
+
 celltype.markers %>%
-  ggplot(aes(x=celltype, y=avg_auc)) +
+  ggplot(aes(y=celltype, x=avg_auc)) +
   geom_boxplot() +
-  ylim(0.5, 1)
+  xlim(0.5, 1)
 ```
+
+There are no good markers for Glutamatergic neurons.
 
 # Interesting genes
 
@@ -112,8 +117,10 @@ Dlx5 is a member of DLX gene family that encompasses multiple homeobox transcrip
 
 ```{r}
 plot.GEX.ATAC("Dlx5")
+ggsave("figures/TFplots/Dlx5.atac.gex.png", dpi=300, height=3, width=5)
 
-plot.access("Dlx5")
+plot.access("Dlx5", selection = "Neuron|Granule|Prec")
+ggsave("figures/TFplots/Dlx5.access.png", dpi=300, height=3, width=12)
 ```
 
 ## Plagl1
@@ -122,8 +129,10 @@ Plagl1 stands out with an average AUC of 0.85 for Astrocytes. It is associated w
 
 ```{r}
 plot.GEX.ATAC("Plagl1")
+ggsave("figures/TFplots/Plagl1.atac.gex.png", dpi=300, height=3, width=5)
 
 plot.access("Plagl1")
+ggsave("figures/TFplots/Plagl1.access.png", dpi=300, height=3, width=12)
 ```
 
 
@@ -133,8 +142,11 @@ Neurod2 has been classified by my analysis as a marker gene for Neural Progenito
 
 ```{r}
 plot.GEX.ATAC("Neurod2")
+ggsave("figures/TFplots/Neurod2.atac.gex.png", dpi=300, height=3, width=5)
 
-plot.access("Neurod2", "Neuron|Progen")
+
+plot.access("Neurod2", "Neuron|Progen|Precurs")
+ggsave("figures/TFplots/Neurod2.access.png", dpi=300, height=3, width=12)
 ```
 
 
